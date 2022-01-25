@@ -62,11 +62,24 @@ impl Config {
         config
     }
 
-    fn validate(&self) {
+    fn validate(&mut self) {
         if self.quiz.is_empty() {
             panic!("No quiz found");
-        } else if self.quiz.len() != self.lock.len() {
-            panic!("Quiz and lock length mismatch");
+        }
+
+        if self.quiz.len() != self.lock.len() {
+            if self.quiz.len() > self.lock.len() {
+                // new quiz added
+                for _ in 0..self.lock.len() - self.quiz.len() {
+                    self.lock.push(QuizLock { uuid: Uuid::new_v4() });
+                }
+            } else {
+                // quiz deleted
+                for _ in self.quiz.len()..self.lock.len() {
+                    let removed = self.lock.pop().unwrap();
+                    println!("Removed {} from lock", removed.uuid);
+                }
+            }
         }
     }
 
