@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>#{{ index }} {{ name }}</title>
+    <style>
+        a {
+            text-decoration: none;
+            color: olive;
+        }
+
+        .card {
+            max-width: 80%;
+            margin: 64px auto;
+            opacity: 0.87;
+            padding: 24px 32px;
+            box-shadow: 0 2px 2px 0 rgba(0, 0, 0, .14), 0 3px 1px -2px rgba(0, 0, 0, .2), 0 1px 5px 0 rgba(0, 0, 0, .12);
+            border-radius: 2px;
+            background: white;
+            position: relative;
+        }
+
+        .id {
+            position: absolute;
+            top: 16px;
+            right: 24px;
+            opacity: 0.68;
+            font-size: 48px;
+            font-weight: 400;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', serif;
+            background: rgb(241, 241, 241);
+        }
+
+        img {
+            max-width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+<div class="card">
+    <h1 style="margin: 0">{{ name }}</h1>
+    <div class="id">#{{ index }}</div>
+    <p>
+        {{ description|safe }}
+    </p>
+
+    {% for link in links %}
+    <a href="{{ link.url|e }}" target="_blank">{{ link.name|e }}</a>
+    {% endfor %}
+</div>
+</body>
+
+</html>
