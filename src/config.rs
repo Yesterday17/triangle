@@ -12,6 +12,7 @@ pub struct Quiz {
     index: u8,
     name: String,
     description: String,
+    #[serde(default)]
     links: Vec<QuizLink>,
 }
 
@@ -70,14 +71,14 @@ impl Config {
         if self.quiz.len() != self.lock.len() {
             if self.quiz.len() > self.lock.len() {
                 // new quiz added
-                for _ in 0..self.lock.len() - self.quiz.len() {
+                for _ in 0..(self.quiz.len() - self.lock.len()) {
                     self.lock.push(QuizLock { uuid: Uuid::new_v4() });
                 }
             } else {
                 // quiz deleted
                 for _ in self.quiz.len()..self.lock.len() {
                     let removed = self.lock.pop().unwrap();
-                    println!("Removed {} from lock", removed.uuid);
+                    eprintln!("Removed {} from lock", removed.uuid);
                 }
             }
         }
