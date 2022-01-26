@@ -20,7 +20,10 @@ async fn index(data: web::Data<RwLock<AppState>>) -> impl Responder {
 async fn quiz(web::Path(uuid): web::Path<String>, data: web::Data<RwLock<AppState>>) -> impl Responder {
     match Uuid::from_str(&uuid) {
         Ok(uuid) => {
-            data.read().get(&uuid).unwrap().into_response()
+            match data.read().get(&uuid) {
+                Some(quiz) => quiz.into_response(),
+                None => Ok(HttpResponse::NotFound().finish()),
+            }
         }
         Err(_) => Ok(HttpResponse::NotFound().finish())
     }

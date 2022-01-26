@@ -40,8 +40,8 @@ impl Config {
     pub fn new<P>(config: P, lock: P) -> Self
         where P: AsRef<Path> {
         // read config
-        let config = fs::read_to_string(config).unwrap();
-        let mut config: Config = toml::from_str(&config).unwrap();
+        let config = fs::read_to_string(config).expect("Failed to read config");
+        let mut config: Config = toml::from_str(&config).expect("Failed to parse config");
         for (i, quiz) in config.quiz.iter_mut().enumerate() {
             quiz.index = (i + 1) as u8;
         }
@@ -49,7 +49,7 @@ impl Config {
         // read lock
         let lock_data: Vec<QuizLock> = match fs::read_to_string(lock.as_ref()) {
             Ok(lock) => {
-                serde_json::from_str(&lock).unwrap()
+                serde_json::from_str(&lock).expect("Failed to parse lock file")
             }
             Err(_) => {
                 config.quiz.iter().map(|_| QuizLock { uuid: Uuid::new_v4() }).collect()
