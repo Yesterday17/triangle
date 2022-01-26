@@ -7,13 +7,16 @@ use uuid::Uuid;
 
 #[derive(Template, Deserialize)]
 #[template(path = "quiz.html")]
+#[serde(rename_all = "kebab-case")]
 pub struct Quiz {
-    #[serde(default)]
+    #[serde(default, skip)]
     index: u8,
     name: String,
     description: String,
     #[serde(default)]
     links: Vec<QuizLink>,
+    #[serde(default, skip)]
+    powered_by: bool,
 }
 
 #[derive(Deserialize)]
@@ -28,12 +31,20 @@ pub struct QuizLock {
 }
 
 #[derive(Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub struct Config {
+    /// Whether to show powered-by footer
+    #[serde(default = "bool_default_true")]
+    powered_by: bool,
     /// Quiz content
     quiz: Vec<Quiz>,
     /// Quiz uuid lock
     #[serde(skip)]
     lock: Vec<QuizLock>,
+}
+
+fn bool_default_true() -> bool {
+    true
 }
 
 impl Config {
@@ -44,6 +55,7 @@ impl Config {
         let mut config: Config = toml::from_str(&config).expect("Failed to parse config");
         for (i, quiz) in config.quiz.iter_mut().enumerate() {
             quiz.index = (i + 1) as u8;
+            quiz.powered_by = config.powered_by;
         }
 
         // read lock

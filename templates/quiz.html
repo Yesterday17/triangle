@@ -10,8 +10,6 @@
         }
 
         .card {
-            max-width: 80%;
-            margin: 64px auto;
             opacity: 0.87;
             padding: 24px 32px;
             box-shadow: 0 2px 2px 0 rgba(0, 0, 0, .14), 0 3px 1px -2px rgba(0, 0, 0, .2), 0 1px 5px 0 rgba(0, 0, 0, .12);
@@ -32,10 +30,17 @@
         body {
             font-family: 'Microsoft YaHei', serif;
             background: rgb(241, 241, 241);
+            max-width: 80%;
+            margin: 64px auto;
         }
 
         img {
             max-width: 100%;
+        }
+
+        footer {
+            margin: 8px auto;
+            text-align: right;
         }
     </style>
 </head>
@@ -52,6 +57,9 @@
     <a href="{{ link.url|e }}" target="_blank">{{ link.name|e }}</a>
     {% endfor %}
 </div>
+{% if powered_by %}
+<footer>Powered by <a href="https://github.com/Yesterday17/triangle" target="_blank">Triangle</a></footer>
+{% endif %}
 </body>
 
 </html>
