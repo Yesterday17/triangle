@@ -50,6 +50,8 @@
     <h1 style="margin: 0">{{ name }}</h1>
     <div class="id">#{{ index }}</div>
     <p>
+        {{ Self::redpacket_info(self)|safe }}
+
         {{ description|safe }}
     </p>
 

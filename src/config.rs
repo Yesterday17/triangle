@@ -17,6 +17,31 @@ pub struct Quiz {
     links: Vec<QuizLink>,
     #[serde(default, skip)]
     powered_by: bool,
+
+    redpacket: Option<RedpacketInfo>,
+}
+
+#[derive(Deserialize)]
+pub struct RedpacketInfo {
+    code: String,
+    price: f32,
+    count: u32,
+}
+
+impl Quiz {
+    fn redpacket_info(&self) -> String {
+        match self.redpacket {
+            Some(ref redpacket) => {
+                format!(
+                    "<!-- Alipay{code} ￥{price:.2}*{count} -->",
+                    code = redpacket.code,
+                    price = redpacket.price,
+                    count = redpacket.count
+                )
+            }
+            None => "".to_string(),
+        }
+    }
 }
 
 #[derive(Deserialize)]
