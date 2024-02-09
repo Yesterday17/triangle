@@ -1,10 +1,10 @@
+use crate::{AppState, Config};
+use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
+use parking_lot::RwLock;
 use std::path::Path;
 use std::process::exit;
-use notify::{Watcher, RecursiveMode, watcher, DebouncedEvent};
 use std::sync::mpsc::channel;
 use std::time::Duration;
-use parking_lot::RwLock;
-use crate::{AppState, Config};
 
 pub fn watch<P: AsRef<Path>>(path: P, lock: P, data: actix_web::web::Data<RwLock<AppState>>) {
     let (tx, rx) = channel();

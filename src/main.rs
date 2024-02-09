@@ -1,31 +1,34 @@
 mod config;
 mod watch;
 
-use std::path::PathBuf;
-use std::str::FromStr;
-use actix_web::{get, web, App, HttpServer, Responder, HttpResponse};
-use clap::Parser;
-use uuid::Uuid;
-use askama_actix::TemplateIntoResponse;
-use parking_lot::RwLock;
 use crate::config::{AppState, Config};
 use crate::watch::watch;
+use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
+use askama_actix::TemplateIntoResponse;
+use clap::Parser;
+use parking_lot::RwLock;
+use std::path::PathBuf;
+use std::str::FromStr;
+use uuid::Uuid;
 
 #[get("/")]
 async fn index(data: web::Data<RwLock<AppState>>) -> impl Responder {
-    HttpResponse::Found().header("location", format!("/{}", data.read().first())).finish()
+    HttpResponse::Found()
+        .header("location", format!("/{}", data.read().first()))
+        .finish()
 }
 
 #[get("/{uuid}")]
-async fn quiz(web::Path(uuid): web::Path<String>, data: web::Data<RwLock<AppState>>) -> impl Responder {
+async fn quiz(
+    web::Path(uuid): web::Path<String>,
+    data: web::Data<RwLock<AppState>>,
+) -> impl Responder {
     match Uuid::from_str(&uuid) {
-        Ok(uuid) => {
-            match data.read().get(&uuid) {
-                Some(quiz) => quiz.into_response(),
-                None => Ok(HttpResponse::NotFound().finish()),
-            }
-        }
-        Err(_) => Ok(HttpResponse::NotFound().finish())
+        Ok(uuid) => match data.read().get(&uuid) {
+            Some(quiz) => quiz.into_response(),
+            None => Ok(HttpResponse::NotFound().finish()),
+        },
+        Err(_) => Ok(HttpResponse::NotFound().finish()),
     }
 }
 
@@ -51,16 +54,20 @@ async fn main() -> std::io::Result<()> {
         Some(lock_path) => lock_path,
         None => args.config.with_extension("lock"),
     };
-    let data = web::Data::new(RwLock::new(Config::new(&args.config, &lock_path).into_state()));
+    let data = web::Data::new(RwLock::new(
+        Config::new(&args.config, &lock_path).into_state(),
+    ));
 
     if args.watch {
         watch(&args.config, &lock_path, data.clone());
     }
-    HttpServer::new(move || App::new()
-        .app_data(data.clone())
-        .service(index)
-        .service(quiz))
-        .bind("127.0.0.1:8080")?
-        .run()
-        .await
+    HttpServer::new(move || {
+        App::new()
+            .app_data(data.clone())
+            .service(index)
+            .service(quiz)
+    })
+    .bind("127.0.0.1:8080")?
+    .run()
+    .await
 }

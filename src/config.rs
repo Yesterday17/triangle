@@ -1,8 +1,8 @@
+use askama_actix::Template;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
-use askama_actix::{Template};
-use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 
 #[derive(Template, Deserialize)]
@@ -49,7 +49,9 @@ fn bool_default_true() -> bool {
 
 impl Config {
     pub fn new<P>(config: P, lock: P) -> Self
-        where P: AsRef<Path> {
+    where
+        P: AsRef<Path>,
+    {
         // read config
         let config = fs::read_to_string(config).expect("Failed to read config");
         let mut config: Config = toml::from_str(&config).expect("Failed to parse config");
@@ -60,17 +62,20 @@ impl Config {
 
         // read lock
         let lock_data: Vec<QuizLock> = match fs::read_to_string(lock.as_ref()) {
-            Ok(lock) => {
-                serde_json::from_str(&lock).expect("Failed to parse lock file")
-            }
-            Err(_) => {
-                config.quiz.iter().map(|_| QuizLock { uuid: Uuid::new_v4() }).collect()
-            }
+            Ok(lock) => serde_json::from_str(&lock).expect("Failed to parse lock file"),
+            Err(_) => config
+                .quiz
+                .iter()
+                .map(|_| QuizLock {
+                    uuid: Uuid::new_v4(),
+                })
+                .collect(),
         };
         config.lock = lock_data;
 
         config.validate();
-        fs::write(lock, serde_json::to_string(&config.lock).unwrap()).expect("Failed to write lock file");
+        fs::write(lock, serde_json::to_string(&config.lock).unwrap())
+            .expect("Failed to write lock file");
 
         config
     }
@@ -84,7 +89,9 @@ impl Config {
             if self.quiz.len() > self.lock.len() {
                 // new quiz added
                 for _ in 0..(self.quiz.len() - self.lock.len()) {
-                    self.lock.push(QuizLock { uuid: Uuid::new_v4() });
+                    self.lock.push(QuizLock {
+                        uuid: Uuid::new_v4(),
+                    });
                 }
             } else {
                 // quiz deleted
@@ -99,7 +106,12 @@ impl Config {
     pub fn into_state(self) -> AppState {
         AppState {
             first: self.lock[0].uuid.clone(),
-            quiz: self.quiz.into_iter().enumerate().map(|(i, q)| (self.lock[i].uuid, q)).collect(),
+            quiz: self
+                .quiz
+                .into_iter()
+                .enumerate()
+                .map(|(i, q)| (self.lock[i].uuid, q))
+                .collect(),
         }
     }
 }
