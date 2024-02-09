@@ -33,7 +33,7 @@ impl Quiz {
         match self.redpacket {
             Some(ref redpacket) => {
                 format!(
-                    "<!-- Alipay{{{code}}} ￥{price:.2}*{count} -->",
+                    "<pre><code>Alipay{{{code}}} ￥{price:.2}*{count}</code></pre>",
                     code = redpacket.code,
                     price = redpacket.price,
                     count = redpacket.count
